@@ -40,18 +40,38 @@ class App extends React.Component {
             recordList:[],
             startDay: "2021-08-19",
             endDay: "2021-09-01",
-            showHideTestPage: true,
+            showHideTestPage: true, // For main other lifedash
             showHideByDatePage: false,
             isWeekViewOn: false,
-            value: "30s"
+            value: {
+                // "30s"
+            },
+            hide:{
+                "move": false,
+                "record":false
+            }
         };
 
         this.handleChange = this.handleChange.bind(this);
     }
 
-    handleChange(event) {
-        this.setState({value: event.target.value});
+
+    handleHide(key){
+        let hideObj = this.state.hide;
+        hideObj[key] = !this.state.hide[key];
+
+        this.setState(hideObj);
     }
+
+
+    handleChange(event, keyId) {
+        let obj = this.state.value;
+        obj[keyId] = event.target.value;
+        this.setState({value: obj});
+
+        console.log( "Value" +  JSON.stringify(obj));
+    }
+
     handleSubmit(move, recordValue){
         var xhr = new XMLHttpRequest();
         xhr.open("POST", moveUrl.href, true);
@@ -97,6 +117,10 @@ class App extends React.Component {
         //             this.setState({ouraSleepSummaryList: data.sleep});
         //         }
         //     });
+        // TODO: - make the input by filter
+        var params = {filter:"PRIORITY"}; // or:
+        moveUrl.search = new URLSearchParams(params).toString();
+
         fetch(moveUrl)
             .then(response => response.json())
             .then(data =>
@@ -104,10 +128,12 @@ class App extends React.Component {
                 if (data){
                     this.setState({movesList: data});
                 }
-                // tODO: figure out values / states
-                // if (this.state.values == []){
-                //     data.forEach( move => {
-                //
+
+                let obj = {};
+                data.forEach((a)=>{
+                    obj[a.id] =  "";
+                });
+
                 //     });
                 // }
             });
@@ -187,7 +213,6 @@ class App extends React.Component {
         }
         else {
             const moveDiv =  [movesList.map(move=>{
-
                 let image = (move.type === "Release") ? release :
                     (move.type === "Stretch") ? stretch :
                     (move.type === "Flow") ? flow :
@@ -196,6 +221,14 @@ class App extends React.Component {
                         oura
                 ;
 
+                /* MOVE DIV */
+
+                let buttonStyle = {"float":"right"};
+                let labelStyle = {"marginRight":"10px","width":"60px", "backgroundColor": "#33F894", "color":"black"};
+                let textArea = (move.recordType !== "Do")? <textarea value={this.state.value[move.id]}
+                              onChange={(e)=>{this.handleChange(e, move.id)}} />
+                    : null;
+
                 return <div
                 key={move.id}
             style={{
@@ -203,24 +236,27 @@ class App extends React.Component {
                 "backgroundColor":"grey",
                 "display":"inline-block",
                 "padding:":"10px 20px",
-                "margin":"10px"
+                "margin":"10px",
+                "backgroundImage": `url(${move.imageURL})`,
+                "backgroundSize": "150px 160px",
+                "backgroundRepeat": "no-repeat"
             }}>
                     <div style={{"fontSize":"20px","fontWeight":"bold"}}> {move.name} </div>
-                    <div> {move.type} </div>
-                    <div> {move.recordType} </div>
+                    <div style={labelStyle}> {move.type} </div>
+                    {/*<div style={labelStyle}> {move.recordType} </div>*/}
                 <img style={{"height":"50px"}} src={image} alt="Logo" />
                     <label>
-                        RecordValue
                         {/*<textarea value={this.state.value[moveId]} onChange={this.handleChange} />*/}
-                        <textarea value={this.state.value} onChange={this.handleChange} />
+                        {textArea}
                     </label>
-                    <button onClick={(e)=>{this.handleSubmit(move, this.state.value, e)}}>
+                    <button style={buttonStyle} onClick={(e)=>{this.handleSubmit(move, this.state.value[move.id], e)}}>
                         <img style={{"height":"30px", "cursor":"pointer"}} src={ok} alt="Logo" />
                         </button>
                 <br/>
                 </div>
             })];
 
+            let spanStyle= {"backgroundColor":"black", "width": "390px"};
             const recordDiv =  [recordList.map(move=>{ return <div
                 style={{
                     "color":"white",
@@ -232,22 +268,37 @@ class App extends React.Component {
                 }}>
 
                 <div >
+                    <span style={spanStyle}> {move.move.name.toUpperCase()} <em>--</em></span>
                 {move.recordValue} <em>--</em>
                 {move.dateTime} <em>--</em>
-                {move.move.name} <em>--</em>
-                {move.move.type} <em>--</em>
                 </div>
                 <br/>
             </div>
             })];
 
 
-            return (<div> Day view Here
+
+            let moves = <div> Day view Here
                 <div> {moveDiv} </div>
-                <br/>
+            </div>;
+            let records = <div> Day view Here
                 <div> Record Log of Moves </div>
                 <div> {recordDiv} </div>
-            </div>)
+            </div>;
+
+
+            let hiddenMoves = (this.state.hide["move"]) ? <div> Day (Hidden) </div> : moves;
+            let hiddenRecord = (this.state.hide["record"]) ? <div> Hidden Record </div> : records;
+            let btnStyle= {"height":"100px"};
+
+
+            return <div>
+                <button style={btnStyle} onClick={()=>{this.handleHide("move")}}> HIDE MOVES </button>
+                {hiddenMoves}
+
+                <button style={btnStyle} onClick={()=>{this.handleHide("record")}}> Hide Records</button>
+                {hiddenRecord}
+            </div>
         }
 
     }
