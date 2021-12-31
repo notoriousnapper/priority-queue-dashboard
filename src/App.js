@@ -7,22 +7,16 @@ import ok from './ok.png';
 import flow from './flow.png';
 import exercise from './exercise.png';
 import techniqueOne from './technique-1.png';
-import techniqueTwo from './technique-2.png';
 
 import CardContainer from './CardContainer';
 import DateController from './DateController';
 // import { printConsoleTest as testFn} from './helper/loadjson'; TODO: Delete
 
 
-import Button from 'react-bootstrap/Button';
-import Alert from 'react-bootstrap/Alert';
-
-
-
-
-const proxyString = "http://localhost:9999"; // 9999 with proxyman
+const proxyString = "http://localhost:8080"; // 9999 with proxyman
 const sleepUrl = new URL(proxyString + "/sleep");
 const moveUrl = new URL(proxyString + "/move")
+const movePostUrl = new URL(proxyString + "/move")
 const moveRecordUrl = new URL(proxyString + "/moverecords")
 
 // new URL("http://localhost:3010"); // Proxy URL
@@ -37,6 +31,7 @@ class App extends React.Component {
             totalReactPackages: null,
             ouraSleepSummaryList: [],
             movesList:[],
+            movesAllList:[],
             recordList:[],
             startDay: "2021-08-19",
             endDay: "2021-09-01",
@@ -48,6 +43,7 @@ class App extends React.Component {
             },
             hide:{
                 "move": false,
+                "moveAll": true,
                 "record":false
             }
         };
@@ -74,27 +70,12 @@ class App extends React.Component {
 
     handleSubmit(move, recordValue){
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", moveUrl.href, true);
+        xhr.open("POST", movePostUrl.href, true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify({
             ...move,
             "recordValue": recordValue
         }));
-
-
-        // (async () => {
-        //     const rawResponse = await fetch("http://localhost:8080/move", {
-        //         method: 'POST',
-        //         headers: {
-        //             'Accept': 'application/json',
-        //             'Content-Type': 'application/json'
-        //         },
-        //         body: JSON.stringify({id: 1, name: 'Textual content'})
-        //     });
-        //     const content = await rawResponse.json();
-        //
-        //     console.log("Content for post" + content);
-        // })();
     }
 
     componentDidMount(){
@@ -108,7 +89,6 @@ class App extends React.Component {
         // ouraUrl.searchParams.set("start", this.state.startDay)
         // ouraUrl.searchParams.set("end", this.state.endDay)
         // TODO: use ouraSearch with input
-
         // fetch(sleepUrl)
         //     .then(response => response.json())
         //     .then(data =>
@@ -118,24 +98,37 @@ class App extends React.Component {
         //         }
         //     });
         // TODO: - make the input by filter
-        var params = {filter:"PRIORITY"}; // or:
-        moveUrl.search = new URLSearchParams(params).toString();
 
         fetch(moveUrl)
             .then(response => response.json())
             .then(data =>
             {
                 if (data){
-                    this.setState({movesList: data});
+                    this.setState({movesAllList: data});
                 }
-
                 let obj = {};
                 data.forEach((a)=>{
                     obj[a.id] =  "";
                 });
+            });
 
-                //     });
-                // }
+
+        // GET FILTERED Moves
+        var params = {filter:"PRIORITY"}; // or:
+        moveUrl.search = new URLSearchParams(params).toString();
+        fetch(moveUrl)
+            .then(response => response.json())
+            .then(data =>
+            {
+                console.log("data: " + JSON.stringify(data));
+                if (data){
+                    this.setState({movesList: data});
+                }
+                let obj = {};
+                // TODO: check why this exists
+                data.forEach((a)=>{
+                    obj[a.id] =  "";
+                });
             });
 
 
@@ -145,6 +138,7 @@ class App extends React.Component {
             {
                 if (data){
                     this.setState({recordList: data});
+                    console.log("move records: " + JSON.stringify(data));
                 }
             });
 
@@ -175,7 +169,7 @@ class App extends React.Component {
 
         }
 
-        const {ouraSleepSummaryList, movesList, recordList} = this.state; // Important line caused errors
+        const {ouraSleepSummaryList, movesList, movesAllList, recordList} = this.state; // Important line caused errors
 
         const sleepComponentsList = [
             ouraSleepSummaryList.map(
@@ -212,49 +206,64 @@ class App extends React.Component {
             );
         }
         else {
-            const moveDiv =  [movesList.map(move=>{
-                let image = (move.type === "Release") ? release :
-                    (move.type === "Stretch") ? stretch :
-                    (move.type === "Flow") ? flow :
-                    (move.type === "Exercise" || move.type === "Strengthen") ? exercise :
-                    (move.type === "TechniqueRepeat") ? techniqueOne :
-                        oura
-                ;
 
-                /* MOVE DIV */
+            // TODO: Function - keep it clean and move this out
+            // TODO: watch out for "THIS" -> because outside of react "this" is diff object
+            const createMoveGeneralDivFromArray = function(mList){
+                // const ptr = keyCounter;
+                // TODO: Keycounter global variable - watch out and cleanup (last line)
+                if (mList.length === 0){
+                    return [];
+                }
+                return [mList.map(move=>{
+                    let image = (move.type === "Release") ? release :
+                        (move.type === "Stretch") ? stretch :
+                            (move.type === "Flow") ? flow :
+                                (move.type === "Exercise" || move.type === "Strengthen") ? exercise :
+                                    (move.type === "TechniqueRepeat") ? techniqueOne :
+                                        oura
+                    ;
 
-                let buttonStyle = {"float":"right"};
-                let labelStyle = {"marginRight":"10px","width":"60px", "backgroundColor": "#33F894", "color":"black"};
-                let textArea = (move.recordType !== "Do")? <textarea value={this.state.value[move.id]}
-                              onChange={(e)=>{this.handleChange(e, move.id)}} />
-                    : null;
+                    /* MOVE DIV */
 
-                return <div
-                key={move.id}
-            style={{
-                "color":"white",
-                "backgroundColor":"grey",
-                "display":"inline-block",
-                "padding:":"10px 20px",
-                "margin":"10px",
-                "backgroundImage": `url(${move.imageURL})`,
-                "backgroundSize": "150px 160px",
-                "backgroundRepeat": "no-repeat"
-            }}>
-                    <div style={{"fontSize":"20px","fontWeight":"bold"}}> {move.name} </div>
-                    <div style={labelStyle}> {move.type} </div>
-                    {/*<div style={labelStyle}> {move.recordType} </div>*/}
-                <img style={{"height":"50px"}} src={image} alt="Logo" />
-                    <label>
-                        {/*<textarea value={this.state.value[moveId]} onChange={this.handleChange} />*/}
-                        {textArea}
-                    </label>
-                    <button style={buttonStyle} onClick={(e)=>{this.handleSubmit(move, this.state.value[move.id], e)}}>
-                        <img style={{"height":"30px", "cursor":"pointer"}} src={ok} alt="Logo" />
+                    console.log("DEBUG: move " + JSON.stringify(move));
+                    let buttonStyle = {"float":"right"};
+                    let labelStyle = {"marginRight":"10px","width":"60px", "backgroundColor": "#33F894", "color":"black"};
+                    let textArea = (move.recordType !== "Do")? <textarea value={this.state.value[move.id]}
+                                                                         onChange={(e)=>{this.handleChange(e, move.id)}} />
+                        : null;
+
+
+                    return <div
+                        key={move.id}
+                        style={{
+                            "color":"white",
+                            "backgroundColor":"grey",
+                            "display":"inline-block",
+                            "padding:":"10px 20px",
+                            "margin":"10px",
+                            "backgroundImage": `url(${move.imageURL})`,
+                            "backgroundSize": "150px 160px",
+                            "backgroundRepeat": "no-repeat"
+                        }}>
+                        <div style={{"fontSize":"20px","fontWeight":"bold"}}> {move.name} </div>
+                        <div style={labelStyle}> {move.type} </div>
+                        {/*<div style={labelStyle}> {move.recordType} </div>*/}
+                        <img style={{"height":"50px"}} src={image} alt="Logo" />
+                        <label>
+                            {/*<textarea value={this.state.value[moveId]} onChange={this.handleChange} />*/}
+                            {textArea}
+                        </label>
+                        <button style={buttonStyle} onClick={(e)=>{this.handleSubmit(move, this.state.value[move.id], e)}}>
+                            <img style={{"height":"30px", "cursor":"pointer"}} src={ok} alt="Logo" />
                         </button>
-                <br/>
-                </div>
-            })];
+                        <br/>
+                    </div>
+                })];
+            }
+
+            const moveFilteredDiv = createMoveGeneralDivFromArray.call(this, movesList);
+            const moveAllDiv = createMoveGeneralDivFromArray.call(this, movesAllList);
 
             let spanStyle= {"backgroundColor":"black", "width": "390px"};
             const recordDiv =  [recordList.map(move=>{ return <div
@@ -279,8 +288,13 @@ class App extends React.Component {
 
 
             let moves = <div> Day view Here
-                <div> {moveDiv} </div>
+                <div> {moveFilteredDiv} </div>
             </div>;
+
+            let movesAll = <div> Day full list Here
+                <div> {moveAllDiv} </div>
+            </div>;
+
             let records = <div> Day view Here
                 <div> Record Log of Moves </div>
                 <div> {recordDiv} </div>
@@ -288,6 +302,7 @@ class App extends React.Component {
 
 
             let hiddenMoves = (this.state.hide["move"]) ? <div> Day (Hidden) </div> : moves;
+            let hiddenAllMoves = (this.state.hide["moveAll"]) ? <div> Day (Hidden) </div> : movesAll;
             let hiddenRecord = (this.state.hide["record"]) ? <div> Hidden Record </div> : records;
             let btnStyle= {"height":"100px"};
 
@@ -295,6 +310,9 @@ class App extends React.Component {
             return <div>
                 <button style={btnStyle} onClick={()=>{this.handleHide("move")}}> HIDE MOVES </button>
                 {hiddenMoves}
+
+                <button style={btnStyle} onClick={()=>{this.handleHide("moveAll")}}> HIDE Master list of MOVES </button>
+                {hiddenAllMoves}
 
                 <button style={btnStyle} onClick={()=>{this.handleHide("record")}}> Hide Records</button>
                 {hiddenRecord}
@@ -324,6 +342,7 @@ const convertStringToDate = function (dateString) {
 const truncateDuration = function (durationString) {
     return durationString.substring(0, 3);
 }
+
 
 const weekday = new Array(7);
 weekday[0] = "Sunday";
