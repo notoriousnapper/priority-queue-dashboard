@@ -10,7 +10,6 @@ import techniqueOne from './technique-1.png';
 
 import CardContainer from './CardContainer';
 import DateController from './DateController';
-// import { printConsoleTest as testFn} from './helper/loadjson'; TODO: Delete
 
 
 const proxyString = "http://localhost:8080"; // 9999 with proxyman
@@ -19,8 +18,6 @@ const moveUrl = new URL(proxyString + "/move")
 const movePostUrl = new URL(proxyString + "/move")
 const moveRecordUrl = new URL(proxyString + "/moverecords")
 
-// new URL("http://localhost:3010"); // Proxy URL
-// const ouraUrl = new URL("https://api.ouraring.com/v1/sleep?access_token=3JEBRXC3GYTA6UVHK2KR2LDKAEE3FQOV&start=2021-08-21&end=2021-09-04");
 
 
 class App extends React.Component {
@@ -79,25 +76,7 @@ class App extends React.Component {
     }
 
     componentDidMount(){
-        // Add "AWAIT" & Related as needed
-        // Simple GET request using fetch
-        // TODO: Check if it
-        // TODO: unit tests?
-        // TODO: worth learning ... + java
-        // TODO: Error checks?
 
-        // ouraUrl.searchParams.set("start", this.state.startDay)
-        // ouraUrl.searchParams.set("end", this.state.endDay)
-        // TODO: use ouraSearch with input
-        // fetch(sleepUrl)
-        //     .then(response => response.json())
-        //     .then(data =>
-        //     {
-        //         if (data.sleep){
-        //             this.setState({ouraSleepSummaryList: data.sleep});
-        //         }
-        //     });
-        // TODO: - make the input by filter
 
         fetch(moveUrl)
             .then(response => response.json())
@@ -113,8 +92,8 @@ class App extends React.Component {
             });
 
 
-        // GET FILTERED Moves
-        var params = {filter:"PRIORITY"}; // or:
+        // Get moves with filter
+        var params = {filter:"PRIORITY"};
         moveUrl.search = new URLSearchParams(params).toString();
         fetch(moveUrl)
             .then(response => response.json())
@@ -124,11 +103,6 @@ class App extends React.Component {
                 if (data){
                     this.setState({movesList: data});
                 }
-                let obj = {};
-                // TODO: check why this exists
-                data.forEach((a)=>{
-                    obj[a.id] =  "";
-                });
             });
 
 
@@ -138,14 +112,11 @@ class App extends React.Component {
             {
                 if (data){
                     this.setState({recordList: data});
-                    console.log("move records: " + JSON.stringify(data));
                 }
             });
 
     }
     render() {
-
-
         let styles = {
             ul: {
                 display: "block"
@@ -187,6 +158,7 @@ class App extends React.Component {
         const sleepComponentsParent = () => {
             return <ul style={styles.ul}> {sleepComponentsList} </ul>
         };
+
         console.log(sleepComponentsList);
         if (this.state.isWeekViewOn){
             return (
@@ -207,11 +179,7 @@ class App extends React.Component {
         }
         else {
 
-            // TODO: Function - keep it clean and move this out
-            // TODO: watch out for "THIS" -> because outside of react "this" is diff object
             const createMoveGeneralDivFromArray = function(mList){
-                // const ptr = keyCounter;
-                // TODO: Keycounter global variable - watch out and cleanup (last line)
                 if (mList.length === 0){
                     return [];
                 }
@@ -225,22 +193,21 @@ class App extends React.Component {
                     ;
 
                     /* MOVE DIV */
-
-                    console.log("DEBUG: move " + JSON.stringify(move));
                     let buttonStyle = {"float":"right"};
                     let labelStyle = {"marginRight":"10px","width":"60px", "backgroundColor": "#33F894", "color":"black"};
                     let textArea = (move.recordType !== "Do")? <textarea value={this.state.value[move.id]}
                                                                          onChange={(e)=>{this.handleChange(e, move.id)}} />
                         : null;
 
-
+                    let bgColor = (move.type === "Workout") ? "#abdf86" : "grey";
+                    let color = (move.type === "Workout") ? "black" : "white";
                     return <div
                         key={move.id}
                         style={{
-                            "color":"white",
-                            "backgroundColor":"grey",
+                            "color": color,
+                            "backgroundColor": bgColor,
                             "display":"inline-block",
-                            "padding:":"10px 20px",
+                            "padding:":"20px 20px",
                             "margin":"10px",
                             "backgroundImage": `url(${move.imageURL})`,
                             "backgroundSize": "150px 160px",
@@ -248,10 +215,8 @@ class App extends React.Component {
                         }}>
                         <div style={{"fontSize":"20px","fontWeight":"bold"}}> {move.name} </div>
                         <div style={labelStyle}> {move.type} </div>
-                        {/*<div style={labelStyle}> {move.recordType} </div>*/}
                         <img style={{"height":"50px"}} src={image} alt="Logo" />
                         <label>
-                            {/*<textarea value={this.state.value[moveId]} onChange={this.handleChange} />*/}
                             {textArea}
                         </label>
                         <button style={buttonStyle} onClick={(e)=>{this.handleSubmit(move, this.state.value[move.id], e)}}>

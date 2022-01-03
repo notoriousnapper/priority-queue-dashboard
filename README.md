@@ -1,3 +1,34 @@
+TODO: (And thoughts)
+
+
+01-02-2 
+// TODO: Do Unit Tests
+// TODO: Error checks
+// TODO: use ouraSearch with input
+
+
+Oura url related things:
+// const ouraUrl = new URL("https://api.ouraring.com/v1/sleep?access_token=3JEBRXC3GYTA6UVHK2KR2LDKAEE3FQOV&start=2021-08-21&end=2021-09-04");
+// Add "AWAIT" & Related as needed
+// Simple GET request using fetch
+ouraUrl.searchParams.set("start", this.state.startDay)
+ouraUrl.searchParams.set("end", this.state.endDay)
+fetch(sleepUrl)
+    .then(response => response.json())
+    .then(data =>
+    {
+        if (data.sleep){
+            this.setState({ouraSleepSummaryList: data.sleep});
+        }
+    });
+
+
+
+
+
+
+
+
 exercise logo:
 https://www.vectorstock.com/royalty-free-vector/arm-with-dumbbell-gym-fitness-logo-vector-27493572
 
