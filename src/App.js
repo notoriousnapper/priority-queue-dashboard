@@ -10,6 +10,7 @@ import techniqueOne from './technique-1.png';
 
 import CardContainer from './CardContainer';
 import DateController from './DateController';
+import Info from './components/Info';
 
 
 const proxyString = "http://localhost:8080"; // 9999 with proxyman
@@ -52,7 +53,6 @@ class App extends React.Component {
     handleHide(key){
         let hideObj = this.state.hide;
         hideObj[key] = !this.state.hide[key];
-
         this.setState(hideObj);
     }
 
@@ -222,6 +222,9 @@ class App extends React.Component {
                         <button style={buttonStyle} onClick={(e)=>{this.handleSubmit(move, this.state.value[move.id], e)}}>
                             <img style={{"height":"30px", "cursor":"pointer"}} src={ok} alt="Logo" />
                         </button>
+                        <Info info={"Here lies info"} >Hi
+                        </Info>
+
                         <br/>
                     </div>
                 })];
