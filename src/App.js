@@ -199,11 +199,34 @@ class App extends React.Component {
                                                                          onChange={(e)=>{this.handleChange(e, move.id)}} />
                         : null;
 
-                    let bgColor = (move.type === "Workout") ? "#abdf86" : "grey";
-                    let color = (move.type === "Workout") ? "black" : "white";
-                    return <div
-                        key={move.id}
-                        style={{
+                    let color = "white";
+                    let bgColor = "grey";
+                    switch(move.type) {
+                        case "Workout":
+                            bgColor = "#abdf86";
+                            color = "black";
+                            break;
+                        case "Affirmation":
+                            bgColor = "#efcd02";
+                            color = "black";
+                            break;
+                        default:
+                        // code block
+                    }
+
+                        // (move.type === "Workout") ? : "grey";
+                    let styles = {
+                    general: {
+                        "color": color,
+                        "backgroundColor": bgColor,
+                        "display":"inline-block",
+                        "padding:":"20px 20px",
+                        "margin":"10px",
+                        "backgroundImage": `url(${move.imageURL})`,
+                        "backgroundSize": "150px 160px",
+                        "backgroundRepeat": "no-repeat"
+                    },
+                    affirmations: {
                             "color": color,
                             "backgroundColor": bgColor,
                             "display":"inline-block",
@@ -212,7 +235,13 @@ class App extends React.Component {
                             "backgroundImage": `url(${move.imageURL})`,
                             "backgroundSize": "150px 160px",
                             "backgroundRepeat": "no-repeat"
-                        }}>
+                    }
+                    }
+                    return <div
+                        key={move.id}
+                        style={
+                            styles.general
+                        }>
                         <div style={{"fontSize":"20px","fontWeight":"bold"}}> {move.name} </div>
                         <div style={labelStyle}> {move.type} </div>
                         <img style={{"height":"50px"}} src={image} alt="Logo" />
@@ -222,7 +251,7 @@ class App extends React.Component {
                         <button style={buttonStyle} onClick={(e)=>{this.handleSubmit(move, this.state.value[move.id], e)}}>
                             <img style={{"height":"30px", "cursor":"pointer"}} src={ok} alt="Logo" />
                         </button>
-                        <Info info={"Here lies info"} >Hi
+                        <Info info={move.description} >Hi
                         </Info>
 
                         <br/>

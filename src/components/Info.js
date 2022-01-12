@@ -45,24 +45,20 @@ class Info extends React.Component {
 
             },
             child: {
-                // backgroundColor: "red",
+                backgroundColor: "#F0F0F0",
                 position:"absolute",
                 color: "grey",
-                marginLeft: "50px",
+                marginLeft: "-200px",
                 padding: "20px 20px",
                 marginTop:"10px",
                 zIndex: "9999",
-                maxWidth:"200px",
-                backgroundImage: `url(${eggshell})`
+                maxWidth:"500px", // Whatever the parent card is
+                // backgroundImage: `url(${eggshell})`
             }
         };
 
         let hiddenInfo = (!this.state.hide)?
             <div style={styles.child}>
-                A shit ton of info lies here*
-                A shit ton of info lies here*
-                A shit ton of info lies here*
-                A shit ton of info lies here*
                 {this.state.info}
             </div>
             :
