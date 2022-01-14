@@ -195,66 +195,120 @@ class App extends React.Component {
                     /* MOVE DIV */
                     let buttonStyle = {"float":"right"};
                     let labelStyle = {"marginRight":"10px","width":"60px", "backgroundColor": "#33F894", "color":"black"};
-                    let textArea = (move.recordType !== "Do")? <textarea value={this.state.value[move.id]}
+                    let textArea = (move.recordType !== "Do")? <textarea style={{"width":"50%"}} value={this.state.value[move.id]}
                                                                          onChange={(e)=>{this.handleChange(e, move.id)}} />
                         : null;
 
+                    let divType = ""; // type: [smallAtom, bigAtom, listAtom]...
+                        // Needs to be here before styles
+                    let customStyles  =  {
+                        smallTileGeneral:{
+                            "width": "140px"
+                        },
+                        smallTileTitle:{
+                            // "width": "140px"
+                            font: "10px"
+                        },
+                        smallTileImage: {
+                            "height":"30px"
+                        },
+                        smallTileSubmit: {
+                            "height":"30px",
+                            "width":"30px",
+                            "backgroundColor" : "#33F894",
+                            "border" : "15px #abdf86"
+                        }
+                    };
                     let color = "white";
                     let bgColor = "grey";
+                    let selectedTypeStyle = {}, selectedTypeImageStyle = {}, selectedTypeSubmitStyle  = {};
                     switch(move.type) {
+                        case "Flow":
+                            break;
                         case "Workout":
                             bgColor = "#abdf86";
                             color = "black";
                             break;
                         case "Affirmation":
                             bgColor = "#efcd02";
-                            color = "black";
+                            color = "black"; // TODO: clean *this*
+                            divType = "smallAtom";
+                            // selectedTypeSubmitStyle= customStyles.smallTileSubmit;
+                            // selectedTypeImageStyle = customStyles.smallTileImage;
+                            // selectedTypeStyle = customStyles.smallTileGeneral;
                             break;
                         default:
+                            // selectedTypeStyle = customStyles.smallTileGeneral;
+                            // break;
                         // code block
                     }
-
+                    switch(divType){
+                        case "smallAtom":
+                            selectedTypeSubmitStyle= customStyles.smallTileSubmit;
+                            selectedTypeImageStyle = customStyles.smallTileImage;
+                            selectedTypeStyle = customStyles.smallTileGeneral;
+                            break;
+                        case "bigAtom":
+                            break;
+                        default:
+                            break;
+                    }
                         // (move.type === "Workout") ? : "grey";
                     let styles = {
                     general: {
-                        "color": color,
-                        "backgroundColor": bgColor,
-                        "display":"inline-block",
-                        "padding:":"20px 20px",
-                        "margin":"10px",
-                        "backgroundImage": `url(${move.imageURL})`,
-                        "backgroundSize": "150px 160px",
-                        "backgroundRepeat": "no-repeat"
+                        color: color,
+                        backgroundColor: bgColor,
+                        display:"inline-block",
+                        margin:"10px",
+                        backgroundImage: `url(${move.imageURL})`,
+                        backgroundSize: "150px 160px",
+                        backgroundRepeat: "no-repeat",
+                        borderRadius: "5px",
+                        height:"120px",
+                        width:"300px",
+                        verticalAlign:"top"
                     },
-                    affirmations: {
-                            "color": color,
-                            "backgroundColor": bgColor,
-                            "display":"inline-block",
-                            "padding:":"20px 20px",
-                            "margin":"10px",
-                            "backgroundImage": `url(${move.imageURL})`,
-                            "backgroundSize": "150px 160px",
-                            "backgroundRepeat": "no-repeat"
-                    }
-                    }
+
+                        title:
+                            {
+                            fontSize:"20px",
+                            fontWeight:"bold",
+                            display: "inline-block",
+                            whiteSpace: "nowrap", /* forces text to single line */
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            width:"240px",
+                            maxWidth:"80%",
+                                // "backgroundColor":"#6B6B6B" // Good idea ... maybe
+
+                        },
+                        img: {"height":"50px"},
+                        submit: {"height":"30px", "cursor":"pointer"}
+                    };
+
+                    let submitButton = (divType === "smallAtom") ? null :
+                        <img style={{...styles.submit, ...selectedTypeSubmitStyle}} src={ok} alt="Logo" />;
+
                     return <div
                         key={move.id}
                         style={
-                            styles.general
+                            {...styles.general, ...selectedTypeStyle}
                         }>
-                        <div style={{"fontSize":"20px","fontWeight":"bold"}}> {move.name} </div>
-                        <div style={labelStyle}> {move.type} </div>
-                        <img style={{"height":"50px"}} src={image} alt="Logo" />
-                        <label>
-                            {textArea}
-                        </label>
-                        <button style={buttonStyle} onClick={(e)=>{this.handleSubmit(move, this.state.value[move.id], e)}}>
-                            <img style={{"height":"30px", "cursor":"pointer"}} src={ok} alt="Logo" />
-                        </button>
-                        <Info info={move.description} >Hi
-                        </Info>
+                            <div style={{"padding":"10px 10px"}}>
+                                <Info info={move.description} >
+                                    <div style={styles.title}>{move.name} </div>
+                                    </Info>
+                                <div style={labelStyle}> {move.type} </div>
+                                <img style={{...styles.img, ...selectedTypeImageStyle}}  src={image} alt="Logo" />
+                                <label>
+                                    {textArea}
+                                </label>
+                                <button style={{...buttonStyle, ...selectedTypeSubmitStyle}} onClick={(e)=>{this.handleSubmit(move, this.state.value[move.id], e)}}>
+                                    {submitButton}
+                                </button>
 
-                        <br/>
+                                <br/>
+                            </div>
                     </div>
                 })];
             }
