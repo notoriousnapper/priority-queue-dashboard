@@ -1,16 +1,18 @@
 import './App.css';
 import React from 'react';
-import oura from './oura-ring.png';
-import stretch from './stretch.png';
-import release from './release.png';
-import ok from './ok.png';
-import flow from './flow.png';
-import exercise from './exercise.png';
-import techniqueOne from './technique-1.png';
+import oura from './assets/oura-ring.png';
+import stretch from './assets/stretch.png';
+import release from './assets/release.png';
+import ok from './assets/ok.png';
+import flow from './assets/flow.png';
+import exercise from './assets/exercise.png';
+import techniqueOne from './assets/technique-1.png';
 
 import CardContainer from './CardContainer';
 import DateController from './DateController';
 import Info from './components/Info';
+import goldenBorderSVG from './assets/golden_border.svg';
+import ritual from './assets/ritual.png';
 
 
 const proxyString = "http://localhost:8080"; // 9999 with proxyman
@@ -93,7 +95,7 @@ class App extends React.Component {
 
 
         // Get moves with filter
-        var params = {filter:"PRIORITY"};
+        var params = {filter:"PRIORITY", filterTwo: "ATOM_SIZE_DESCENDING"};
         moveUrl.search = new URLSearchParams(params).toString();
         fetch(moveUrl)
             .then(response => response.json())
@@ -185,6 +187,7 @@ class App extends React.Component {
                 }
                 return [mList.map(move=>{
                     let image = (move.type === "Release") ? release :
+                        (move.type === "Ritual") ? ritual :
                         (move.type === "Stretch") ? stretch :
                             (move.type === "Flow") ? flow :
                                 (move.type === "Exercise" || move.type === "Strengthen") ? exercise :
@@ -199,9 +202,30 @@ class App extends React.Component {
                                                                          onChange={(e)=>{this.handleChange(e, move.id)}} />
                         : null;
 
-                    let divType = ""; // type: [smallAtom, bigAtom, listAtom]...
+                    let divType = ""; // type: [smallAtom, mediumAtom, bigAtom, listAtom]...
                         // Needs to be here before styles
                     let customStyles  =  {
+
+                        mediumTileGeneral:{
+                            backgroundImage: `url(${goldenBorderSVG})`,
+                            backgroundSize: "100% 100%",
+                            backgroundPosition: "left",
+                            width: "410px",
+                            cursor: "pointer"
+                        },
+                        mediumTileLabel: {
+                            backgroundColor : "#5A07F5",
+                            paddingLeft:"10px"
+                        },
+                        mediumTileTitle:{
+                            font: "10px",
+                            paddingLeft:"10px"
+                        },
+                        mediumTileImage: {
+                            height:"60px",
+                            marginLeft:"10px"
+                        },
+
                         smallTileGeneral:{
                             "width": "140px"
                         },
@@ -221,8 +245,12 @@ class App extends React.Component {
                     };
                     let color = "white";
                     let bgColor = "grey";
-                    let selectedTypeStyle = {}, selectedTypeImageStyle = {}, selectedTypeSubmitStyle  = {};
+                    let selectedTypeStyle = {}, selectedTypeImageStyle = {}, selectedTypeSubmitStyle  = {},
+                        selectedLabelStyle, selectedTitleStyle = {};
                     switch(move.type) {
+                        case "Ritual":
+                            divType = "mediumAtom";
+                            break;
                         case "Flow":
                             break;
                         case "Workout":
@@ -247,6 +275,13 @@ class App extends React.Component {
                             selectedTypeSubmitStyle= customStyles.smallTileSubmit;
                             selectedTypeImageStyle = customStyles.smallTileImage;
                             selectedTypeStyle = customStyles.smallTileGeneral;
+                            break;
+                        case "mediumAtom":
+                            // selectedTypeSubmitStyle= customStyles.mediumTileSubmit;
+                            selectedTypeImageStyle = customStyles.mediumTileImage;
+                            selectedTypeStyle = customStyles.mediumTileGeneral;
+                            selectedLabelStyle = customStyles.mediumTileLabel;
+                            selectedTitleStyle = customStyles.mediumTileTitle;
                             break;
                         case "bigAtom":
                             break;
@@ -296,9 +331,9 @@ class App extends React.Component {
                         }>
                             <div style={{"padding":"10px 10px"}}>
                                 <Info info={move.description} >
-                                    <div style={styles.title}>{move.name} </div>
+                                    <div style={{...styles.title, ...selectedTitleStyle}}>{move.name} </div>
                                     </Info>
-                                <div style={labelStyle}> {move.type} </div>
+                                <div style={{...labelStyle, ...selectedLabelStyle}}> {move.type} </div>
                                 <img style={{...styles.img, ...selectedTypeImageStyle}}  src={image} alt="Logo" />
                                 <label>
                                     {textArea}

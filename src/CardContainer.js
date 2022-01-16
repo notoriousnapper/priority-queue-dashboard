@@ -1,6 +1,6 @@
 import React from "react";
 import Card from './Card';
-import video from './acl_fest-10-11-21.mp4'
+import video from './assets/acl_fest-10-11-21.mp4'
 
 
 

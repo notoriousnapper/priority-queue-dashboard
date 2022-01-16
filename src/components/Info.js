@@ -1,7 +1,7 @@
 import React from "react";
 
-import eggshell from "../eggshell-texture.png"
-import arrow from "../arrow-down.png"
+import eggshell from "../assets/eggshell-texture.png"
+import arrow from "../assets/arrow-down.png"
 
 
 class Info extends React.Component {

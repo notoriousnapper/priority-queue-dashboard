@@ -1,7 +1,7 @@
 import React from "react";
-import eventImg from './event.png';
-import sleepImg from './oura-ring.png';
-import exerciseImg from './exercise.png';
+import eventImg from './assets/event.png';
+import sleepImg from './assets/oura-ring.png';
+import exerciseImg from './assets/exercise.png';
 
 
 
