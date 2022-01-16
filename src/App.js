@@ -12,6 +12,7 @@ import CardContainer from './CardContainer';
 import DateController from './DateController';
 import Info from './components/Info';
 import goldenBorderSVG from './assets/golden_border.svg';
+import greenBorder from './assets/green-border.svg';
 import ritual from './assets/ritual.png';
 
 
@@ -187,7 +188,7 @@ class App extends React.Component {
                 }
                 return [mList.map(move=>{
                     let image = (move.type === "Release") ? release :
-                        (move.type === "Ritual") ? ritual :
+                        (move.type === "Ritual") ? oura :
                         (move.type === "Stretch") ? stretch :
                             (move.type === "Flow") ? flow :
                                 (move.type === "Exercise" || move.type === "Strengthen") ? exercise :
@@ -207,22 +208,26 @@ class App extends React.Component {
                     let customStyles  =  {
 
                         mediumTileGeneral:{
-                            backgroundImage: `url(${goldenBorderSVG})`,
+                            backgroundImage: `url(${greenBorder})`,
                             backgroundSize: "100% 100%",
                             backgroundPosition: "left",
                             width: "410px",
                             cursor: "pointer"
                         },
                         mediumTileLabel: {
-                            backgroundColor : "#5A07F5",
+                            backgroundColor : "#05004F",
+                            fontWeight: "bold",
+                            fontStyle: "italic",
                             paddingLeft:"10px"
                         },
                         mediumTileTitle:{
                             font: "10px",
-                            paddingLeft:"10px"
+                            paddingLeft:"10px",
+                            textAlign: "center"
                         },
                         mediumTileImage: {
-                            height:"60px",
+                            marginTop: "9px",
+                            height:"40px",
                             marginLeft:"10px"
                         },
 
@@ -234,13 +239,14 @@ class App extends React.Component {
                             font: "10px"
                         },
                         smallTileImage: {
-                            "height":"30px"
+                            height:"30px"
                         },
                         smallTileSubmit: {
-                            "height":"30px",
-                            "width":"30px",
-                            "backgroundColor" : "#33F894",
-                            "border" : "15px #abdf86"
+                            height:"30px",
+                            width:"30px",
+                            backgroundColor : "#33F894",
+                            border : "15px #abdf86",
+                            cursor: "pointer"
                         }
                     };
                     let color = "white";
