@@ -6,6 +6,8 @@ TODO: (And thoughts)
 // TODO: Error checks
 // TODO: use ouraSearch with input
 
+01-18-22 
+// TODO: Make overflow height = the height of one of the atoms
 
 Oura url related things:
 // const ouraUrl = new URL("https://api.ouraring.com/v1/sleep?access_token=3JEBRXC3GYTA6UVHK2KR2LDKAEE3FQOV&start=2021-08-21&end=2021-09-04");
