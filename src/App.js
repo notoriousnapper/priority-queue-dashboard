@@ -9,6 +9,7 @@ import exercise from './assets/exercise.png';
 import techniqueOne from './assets/technique-1.png';
 
 import CardContainer from './CardContainer';
+import HappyJarContainer from './HappyJarContainer';
 import DateController from './DateController';
 import Info from './components/Info';
 import goldenBorderSVG from './assets/golden_border.svg';
@@ -198,7 +199,7 @@ class App extends React.Component {
 
                     /* MOVE DIV */
                     let buttonStyle = {"float":"right"};
-                    let labelStyle = {"marginRight":"10px","width":"60px", "backgroundColor": "#33F894", "color":"black"};
+                    let labelStyle = {"paddingLeft":"15px","fontWeight":"light","fontSize":"12px","padding":"2px 10px 2px 7px","marginRight":"10px","width":"fit-content","backgroundColor": "#5e5e5e", "color":"black"};
                     let textArea = (move.recordType !== "Do")? <textarea style={{"width":"50%"}} value={this.state.value[move.id]}
                                                                          onChange={(e)=>{this.handleChange(e, move.id)}} />
                         : null;
@@ -296,6 +297,14 @@ class App extends React.Component {
                     }
                         // (move.type === "Workout") ? : "grey";
                     let styles = {
+                        overflow: {
+                            backgroundColor: "red",
+                            maxWidth: "500px",
+                            maxHeight: "500px",
+                            overflowX: "auto",
+                            overflowY: "scroll",
+                            whiteSpace: "nowrap"
+                        },
                     general: {
                         color: color,
                         backgroundColor: bgColor,
@@ -383,8 +392,10 @@ class App extends React.Component {
                 <div> {moveFilteredDiv} </div>
             </div>;
 
+            let whiteSpace = (true)? "nowrap" : "";
+
             let movesAll = <div> Day full list Here
-                <div> {moveAllDiv} </div>
+                <div  style={{whiteSpace: whiteSpace, overflowX:"scroll", overflowY:"auto", width: "1000px", height: "300px"}}> {moveAllDiv} </div>
             </div>;
 
             let records = <div> Day view Here
@@ -400,11 +411,12 @@ class App extends React.Component {
 
 
             return <div>
+                <HappyJarContainer></HappyJarContainer>
                 <button style={btnStyle} onClick={()=>{this.handleHide("move")}}> HIDE MOVES </button>
                 {hiddenMoves}
 
                 <button style={btnStyle} onClick={()=>{this.handleHide("moveAll")}}> HIDE Master list of MOVES </button>
-                {hiddenAllMoves}
+                <div> {hiddenAllMoves} </div>
 
                 <button style={btnStyle} onClick={()=>{this.handleHide("record")}}> Hide Records</button>
                 {hiddenRecord}
