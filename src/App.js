@@ -30,6 +30,7 @@ class App extends React.Component {
         super(props);
 
         this.state = {
+            audio: null,
             totalReactPackages: null,
             ouraSleepSummaryList: [],
             movesList:[],
@@ -77,10 +78,11 @@ class App extends React.Component {
             ...move,
             "recordValue": recordValue
         }));
+        this.state.audio.play();
     }
 
     componentDidMount(){
-
+        this.state.audio = document.getElementsByClassName("audio-element")[0];
 
         fetch(moveUrl)
             .then(response => response.json())
@@ -420,6 +422,11 @@ class App extends React.Component {
 
                 <button style={btnStyle} onClick={()=>{this.handleHide("record")}}> Hide Records</button>
                 {hiddenRecord}
+
+
+                <audio className="audio-element">
+                    <source src="https://assets.coderrocketfuel.com/pomodoro-times-up.mp3"></source>
+                </audio>
             </div>
         }
 
