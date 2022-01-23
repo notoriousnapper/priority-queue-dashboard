@@ -12,9 +12,8 @@ import CardContainer from './CardContainer';
 import HappyJarContainer from './HappyJarContainer';
 import DateController from './DateController';
 import Info from './components/Info';
-import goldenBorderSVG from './assets/golden_border.svg';
+import BarGraph from './components/BarGraph';
 import greenBorder from './assets/green-border.svg';
-import ritual from './assets/ritual.png';
 
 
 const proxyString = "http://localhost:8080"; // 9999 with proxyman
@@ -22,6 +21,7 @@ const sleepUrl = new URL(proxyString + "/sleep");
 const moveUrl = new URL(proxyString + "/move")
 const movePostUrl = new URL(proxyString + "/move")
 const moveRecordUrl = new URL(proxyString + "/moverecords")
+const moveAggregateUrl = new URL(proxyString + "/aggregates")
 
 
 
@@ -31,6 +31,8 @@ class App extends React.Component {
 
         this.state = {
             audio: null,
+            aggregates:[],
+            aggregateFilterType: "sum",
             totalReactPackages: null,
             ouraSleepSummaryList: [],
             movesList:[],
@@ -47,7 +49,7 @@ class App extends React.Component {
             hide:{
                 "move": false,
                 "moveAll": true,
-                "record":false
+                "record":true
             }
         };
 
@@ -120,6 +122,22 @@ class App extends React.Component {
                     this.setState({recordList: data});
                 }
             });
+
+        // Fetch Aggregates
+        var aggregateParams = {idList:[], aggregateType: this.state.aggregateFilterType, showAllAggregates: true};
+        fetch(moveAggregateUrl,
+            {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(aggregateParams)
+            })
+            .then(response => response.json())
+            .then(data =>
+            {
+                if (data){
+                    this.setState({aggregates: data});
+                }
+        });
 
     }
     render() {
@@ -263,7 +281,7 @@ class App extends React.Component {
                         case "Flow":
                             break;
                         case "Workout":
-                            bgColor = "#abdf86";
+                            bgColor = Colors.lightGreen;
                             color = "black";
                             break;
                         case "Affirmation":
@@ -411,8 +429,29 @@ class App extends React.Component {
             let hiddenRecord = (this.state.hide["record"]) ? <div> Hidden Record </div> : records;
             let btnStyle= {"height":"100px"};
 
+            // Setting up and filtering aggregate data for charts
+            let barData = [];
+            let aggNames = [];
+            this.state.aggregates.map((aggObj)=>{
+                aggNames.push(aggObj.move.name + " [" + aggObj.move.recordType + "]");
+                barData.push(aggObj.aggregateValue);
+            });
+            let recordTypeFilter = "Do";
+            let aggNamesDo = this.state.aggregates.reduce(function(filtered, aggObj) {
+                if (aggObj.move.recordType === recordTypeFilter) {
+                    filtered.push(aggObj.move.name + " [" + aggObj.move.recordType + "]");
+                }
+                return filtered;
+            }, []);
+            let aggDataDo = this.state.aggregates.reduce(function(filtered, aggObj) {
+                if (aggObj.move.recordType === recordTypeFilter) {
+                    filtered.push(aggObj.aggregateValue);
+                }
+                return filtered;
+            }, []);
 
             return <div>
+
                 <HappyJarContainer></HappyJarContainer>
                 <button style={btnStyle} onClick={()=>{this.handleHide("move")}}> HIDE MOVES </button>
                 {hiddenMoves}
@@ -427,6 +466,12 @@ class App extends React.Component {
                 <audio className="audio-element">
                     <source src="https://assets.coderrocketfuel.com/pomodoro-times-up.mp3"></source>
                 </audio>
+                <BarGraph
+                    moveNames={aggNamesDo}
+                    data={aggDataDo}
+                    aggregateType={this.state.aggregateFilterType + " " +  recordTypeFilter}
+
+                ></BarGraph>
             </div>
         }
 
@@ -455,6 +500,7 @@ const truncateDuration = function (durationString) {
 }
 
 
+// Constants
 const weekday = new Array(7);
 weekday[0] = "Sunday";
 weekday[1] = "Monday";
@@ -463,5 +509,9 @@ weekday[3] = "Wednesday";
 weekday[4] = "Thursday";
 weekday[5] = "Friday";
 weekday[6] = "Saturday";
+
+const Colors = {
+    lightGreen : "#abdf86"
+}
 
 export default App;
