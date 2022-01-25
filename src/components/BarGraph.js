@@ -26,24 +26,10 @@ class BarGraph extends React.Component {
         super(props);
 
         this.state = {
-            hide: true,
-            info: this.props.info
         };
 
     }
     componentDidMount(){
-    }
-    reveal(){
-        this.setState(
-            {
-                hide: false
-            });
-    }
-    hide(){
-        this.setState(
-            {
-                hide: true
-            });
     }
 
     render() {

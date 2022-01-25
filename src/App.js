@@ -1,5 +1,8 @@
 import './App.css';
 import React from 'react';
+import "video.js/dist/video-js.css";
+
+
 import oura from './assets/oura-ring.png';
 import stretch from './assets/stretch.png';
 import release from './assets/release.png';
@@ -14,6 +17,7 @@ import DateController from './DateController';
 import Info from './components/Info';
 import BarGraph from './components/BarGraph';
 import greenBorder from './assets/green-border.svg';
+import AtomShell from './components/AtomShell';
 
 
 const proxyString = "http://localhost:8080"; // 9999 with proxyman
@@ -80,6 +84,7 @@ class App extends React.Component {
             ...move,
             "recordValue": recordValue
         }));
+        console.log("Submitted move: " + JSON.stringify(move));
         this.state.audio.play();
     }
 
@@ -165,6 +170,18 @@ class App extends React.Component {
         }
 
         const {ouraSleepSummaryList, movesList, movesAllList, recordList} = this.state; // Important line caused errors
+
+        // Adding filtered groups by Tags
+        let bioHackMoves = movesAllList.filter(
+            moves => {
+                console.log("Where is biohack" + JSON.stringify(moves));
+            if (moves.tags == null) {
+            }
+            else {
+                console.log("All the Tags: " + JSON.stringify(moves.tags) + "found:" + moves.tags.find((t) => t === "biohack"));
+                return moves.tags.find((t) => t === "biohack") === "biohack";
+            }
+        });
 
         const sleepComponentsList = [
             ouraSleepSummaryList.map(
@@ -253,11 +270,19 @@ class App extends React.Component {
                         },
 
                         smallTileGeneral:{
+                            "opacity":"90%",
                             "width": "140px"
                         },
                         smallTileTitle:{
                             // "width": "140px"
-                            font: "10px"
+                            fontSize: "13px"
+                        },
+                        smallTileLabel: {
+                            backgroundColor : "#05004F",
+                            fontWeight: "bold",
+                            fontStyle: "italic",
+                            paddingLeft:"10px",
+                            fontSize: "10px"
                         },
                         smallTileImage: {
                             height:"30px"
@@ -288,20 +313,28 @@ class App extends React.Component {
                             bgColor = "#efcd02";
                             color = "black"; // TODO: clean *this*
                             divType = "smallAtom";
-                            // selectedTypeSubmitStyle= customStyles.smallTileSubmit;
-                            // selectedTypeImageStyle = customStyles.smallTileImage;
-                            // selectedTypeStyle = customStyles.smallTileGeneral;
                             break;
                         default:
                             // selectedTypeStyle = customStyles.smallTileGeneral;
                             // break;
                         // code block
                     }
+                    // TODO: Primary* tag first?, have separate PRIMARYTAG column?
+                    switch(move.tags[0]) {
+                        case "biohack":
+                            bgColor = "#006bb4";
+                            color = "black"; // TODO: clean *this*
+                            divType = "smallAtom";
+                            break;
+                        default:
+                    }
                     switch(divType){
                         case "smallAtom":
                             selectedTypeSubmitStyle= customStyles.smallTileSubmit;
                             selectedTypeImageStyle = customStyles.smallTileImage;
                             selectedTypeStyle = customStyles.smallTileGeneral;
+                            selectedTitleStyle = customStyles.smallTileTitle;
+                            selectedLabelStyle = customStyles.smallTileLabel;
                             break;
                         case "mediumAtom":
                             // selectedTypeSubmitStyle= customStyles.mediumTileSubmit;
@@ -341,7 +374,7 @@ class App extends React.Component {
 
                         title:
                             {
-                            fontSize:"20px",
+                            fontSize:"18px",
                             fontWeight:"bold",
                             display: "inline-block",
                             whiteSpace: "nowrap", /* forces text to single line */
@@ -384,6 +417,7 @@ class App extends React.Component {
             }
 
             const moveFilteredDiv = createMoveGeneralDivFromArray.call(this, movesList);
+            const moveBioHackDiv = createMoveGeneralDivFromArray.call(this, bioHackMoves);
             const moveAllDiv = createMoveGeneralDivFromArray.call(this, movesAllList);
 
             let spanStyle= {"backgroundColor":"black", "width": "390px"};
@@ -452,6 +486,10 @@ class App extends React.Component {
 
             return <div>
 
+
+                <AtomShell title={"BioHack".toUpperCase()} children={moveBioHackDiv}>
+                </AtomShell>
+
                 <HappyJarContainer></HappyJarContainer>
                 <button style={btnStyle} onClick={()=>{this.handleHide("move")}}> HIDE MOVES </button>
                 {hiddenMoves}
@@ -462,7 +500,6 @@ class App extends React.Component {
                 <button style={btnStyle} onClick={()=>{this.handleHide("record")}}> Hide Records</button>
                 {hiddenRecord}
 
-
                 <audio className="audio-element">
                     <source src="https://assets.coderrocketfuel.com/pomodoro-times-up.mp3"></source>
                 </audio>
@@ -472,6 +509,30 @@ class App extends React.Component {
                     aggregateType={this.state.aggregateFilterType + " " +  recordTypeFilter}
 
                 ></BarGraph>
+
+
+                <video
+                    id="my-video"
+                    className="video-js"
+                    controls
+                    preload="auto"
+                    width="640"
+                    height="264"
+                    poster="MY_VIDEO_POSTER.jpg"
+                    data-setup="{}"
+                >
+                    <source src="https://dsc.cloud/4a22b2/109.01_fakeid-01-23-22.mp4" type="video/mp4"/>
+                    <p className="vjs-no-js">
+                        To view this video please enable JavaScript, and consider upgrading to a
+                        web browser that
+                        <a href="https://videojs.com/html5-video-support/" target="_blank"
+                        >supports HTML5 video</a
+                        >
+                    </p>
+                </video>
+
+
+
             </div>
         }
 
