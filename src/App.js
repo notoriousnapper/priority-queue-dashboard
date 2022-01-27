@@ -33,6 +33,13 @@ class App extends React.Component {
     constructor(props) {
         super(props);
 
+        // Local storage for caching state of dashboard hide toggle
+        let h = ((window.localStorage.getItem("hide")) == null) ? {
+            "move": false,
+                "moveAll": true,
+                "record":true
+        } : (JSON.parse(window.localStorage.getItem("hide")));
+
         this.state = {
             audio: null,
             aggregates:[],
@@ -50,11 +57,7 @@ class App extends React.Component {
             value: {
                 // "30s"
             },
-            hide:{
-                "move": false,
-                "moveAll": true,
-                "record":true
-            }
+            hide: h
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -64,6 +67,9 @@ class App extends React.Component {
     handleHide(key){
         let hideObj = this.state.hide;
         hideObj[key] = !this.state.hide[key];
+
+        window.localStorage.setItem("hide",
+            JSON.stringify(hideObj));
         this.setState(hideObj);
     }
 
