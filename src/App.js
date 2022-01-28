@@ -11,6 +11,8 @@ import flow from './assets/flow.png';
 import exercise from './assets/exercise.png';
 import techniqueOne from './assets/technique-1.png';
 
+import fireflyVideo from './assets/fireflyVideo.mp4';
+
 import CardContainer from './CardContainer';
 import HappyJarContainer from './HappyJarContainer';
 import DateController from './DateController';
@@ -493,7 +495,7 @@ class App extends React.Component {
             return <div>
 
 
-                <AtomShell title={"BioHack".toUpperCase()} children={moveBioHackDiv}>
+                <AtomShell title={"BioHack".toUpperCase()} children={moveBioHackDiv} video={fireflyVideo}>
                 </AtomShell>
 
                 <HappyJarContainer></HappyJarContainer>
