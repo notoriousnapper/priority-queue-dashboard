@@ -180,15 +180,30 @@ class App extends React.Component {
         const {ouraSleepSummaryList, movesList, movesAllList, recordList} = this.state; // Important line caused errors
 
         // Adding filtered groups by Tags
+        let tags = ["biohack", "spartan-race", "relax", "eod"];
+        let tagMovies = [];
+        // let taggedMoves = [
+        //     tags.forEach((t->movesAllList.f))
+        //     ];
         let bioHackMoves = movesAllList.filter(
             moves => {
-                console.log("Where is biohack" + JSON.stringify(moves));
             if (moves.tags == null) {
             }
             else {
                 console.log("All the Tags: " + JSON.stringify(moves.tags) + "found:" + moves.tags.find((t) => t === "biohack"));
-                return moves.tags.find((t) => t === "biohack") === "biohack";
+                return moves.tags.find((t) => t === tags[0]) === tags[0];
             }
+        });
+        let taggedMoves = [];
+        tags.forEach(t => {
+            let filteredMoves = movesAllList.filter(
+                moves => {
+                    if (moves.tags == null) {
+                    } else {
+                        return moves.tags.find((x) => x === t) === t;
+                    }
+                })
+            taggedMoves.push(filteredMoves);
         });
 
         const sleepComponentsList = [
@@ -278,7 +293,7 @@ class App extends React.Component {
                         },
 
                         smallTileGeneral:{
-                            "opacity":"90%",
+                            "opacity":"80%",
                             "width": "140px"
                         },
                         smallTileTitle:{
@@ -330,7 +345,7 @@ class App extends React.Component {
                     // TODO: Primary* tag first?, have separate PRIMARYTAG column?
                     switch(move.tags[0]) {
                         case "biohack":
-                            bgColor = "#006bb4";
+                            bgColor = "white";
                             color = "black"; // TODO: clean *this*
                             divType = "smallAtom";
                             break;
@@ -428,6 +443,15 @@ class App extends React.Component {
             const moveBioHackDiv = createMoveGeneralDivFromArray.call(this, bioHackMoves);
             const moveAllDiv = createMoveGeneralDivFromArray.call(this, movesAllList);
 
+            let taggedDivs = [];
+            for (var i = 0; i < taggedMoves.length; i++) {
+                let d = createMoveGeneralDivFromArray.call(this, taggedMoves[i]);
+                // taggedDivs.push(d);
+                let atomShell = <AtomShell title={tags[i].toUpperCase()} children={d} video={fireflyVideo}>
+                </AtomShell>;
+                taggedDivs.push(atomShell);
+            }
+
             let spanStyle= {"backgroundColor":"black", "width": "390px"};
             const recordDiv =  [recordList.map(move=>{ return <div
                 style={{
@@ -495,8 +519,8 @@ class App extends React.Component {
             return <div>
 
 
-                <AtomShell title={"BioHack".toUpperCase()} children={moveBioHackDiv} video={fireflyVideo}>
-                </AtomShell>
+
+                {taggedDivs}
 
                 <HappyJarContainer></HappyJarContainer>
                 <button style={btnStyle} onClick={()=>{this.handleHide("move")}}> HIDE MOVES </button>

@@ -31,7 +31,7 @@ class AtomShell extends React.Component {
                 display: "inline-block",
                 height:"auto",
                 border: "2px solid #00063e",
-                width: "140px",
+                // width: "140px",
                 margin: "2px",
                 backgroundColor: "#213A28",
                 overflow: "hidden",
@@ -86,11 +86,9 @@ class AtomShell extends React.Component {
                             type="video/mp4"/>
                 </video>
 
-
                     <div style={styles.videoContainerCaption} >
                         <h2>{this.props.title}</h2>
                         <div style={styles.title}>  </div>
-                        {cover}
                         {this.props.children}
                     </div>
 
@@ -99,5 +97,6 @@ class AtomShell extends React.Component {
         )
     }
 }
+// {cover} removed for now
 
 export default AtomShell;
