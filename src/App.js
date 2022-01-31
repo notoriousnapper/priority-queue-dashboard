@@ -1,7 +1,6 @@
 import './App.css';
 import React from 'react';
-import "video.js/dist/video-js.css";
-
+import 'video.js/dist/video-js.css';
 
 import oura from './assets/oura-ring.png';
 import stretch from './assets/stretch.png';
@@ -20,7 +19,6 @@ import Info from './components/Info';
 import BarGraph from './components/BarGraph';
 import greenBorder from './assets/green-border.svg';
 import AtomShell from './components/AtomShell';
-
 
 const proxyString = "http://localhost:8080"; // 9999 with proxyman
 const sleepUrl = new URL(proxyString + "/sleep");
@@ -148,6 +146,7 @@ class App extends React.Component {
             .then(data =>
             {
                 if (data){
+                    console.log("Aggregate Data " + JSON.stringify(data));
                     this.setState({aggregates: data});
                 }
         });
@@ -167,7 +166,7 @@ class App extends React.Component {
             },
             year: {
                 textAlign: "center",
-                fontSize: "15px"  // TODO: Make scalable
+                fontSize: "15px"
 
             },
             oura: {
@@ -180,11 +179,7 @@ class App extends React.Component {
         const {ouraSleepSummaryList, movesList, movesAllList, recordList} = this.state; // Important line caused errors
 
         // Adding filtered groups by Tags
-        let tags = ["biohack", "spartan-race", "relax", "eod"];
-        let tagMovies = [];
-        // let taggedMoves = [
-        //     tags.forEach((t->movesAllList.f))
-        //     ];
+        let tags = ["biohack", "spartan-race", "relax", "eod-mwf"];
         let bioHackMoves = movesAllList.filter(
             moves => {
             if (moves.tags == null) {
@@ -539,9 +534,7 @@ class App extends React.Component {
                     moveNames={aggNamesDo}
                     data={aggDataDo}
                     aggregateType={this.state.aggregateFilterType + " " +  recordTypeFilter}
-
                 ></BarGraph>
-
 
                 <video
                     id="my-video"
