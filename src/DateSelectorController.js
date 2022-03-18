@@ -40,19 +40,16 @@ class DateSelectorController extends React.Component {
                 <p style={{whiteSpace: "preline", backgroundColor: "#F0F0F0", padding: "10px"}}> {textDiv} </p> :
                 (moveRecord.move.recordType == 'Workout') ?
                     <div>
-                      💎 <h3>{moveRecord.move.name}</h3>
-                      <br/> { moveRecord.recordValue}
-                      </div> : (<div>
-                      {moveRecord.move.name}
-                      <br/> { moveRecord.recordValue}
-                    </div>);
+                      <h3 style={{color:"#F8E71C"}}>💎 {moveRecord.move.name}</h3>
+                      {moveRecord.recordValue}
+                      </div> : (<div style = {{border:"1px solid #B77373", padding: "5px", fontSize:"0.7em"}}>{moveRecord.move.name}</div>);
 
                     if ((moveRecord.move.recordType == "Text" || moveRecord.move.type == "Text")){
                       console.log("movedate: " + moveDate + "summarydate: " + date);
                     }
 
             if (sameDay(moveDate, date)) {
-              return <div> <b>{moveRecord.move.name} </b><p>{ recordDiv }</p></div>;
+              return <div ><p>{ recordDiv }</p></div>;
             }
 
           });
@@ -61,12 +58,7 @@ class DateSelectorController extends React.Component {
       // TODO: Order by "Gems", Trace, and links, then whatever
       // Gems are defined as events, tags, and workouts, and symptoms (tags)
       return <div style={{float:"left", width:"15%"}}>
-        <div>
-          💎 Things to look forward too
-          1. Hawaii Trip w/ Friends. Just art, healing, strength, in a good time to bring friends.
-          2.
 
-        </div>
         <h1> {moment(date).format('MMM Do,ddd')}</h1>
         <br/>
         <div style={{
@@ -85,7 +77,6 @@ class DateSelectorController extends React.Component {
     return (<div style={{width: "100%"}}>
       {dateItems}
       Container For Date
-
     </div>);
   }
 };

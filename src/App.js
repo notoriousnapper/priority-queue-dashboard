@@ -17,6 +17,7 @@ import exercise from './assets/exercise.png';
 import techniqueOne from './assets/technique-1.png';
 
 import fireflyVideo from './assets/fireflyVideo.mp4';
+import carSunSetVideo from './assets/visual-car-sunset.mp4';
 
 import ProgressBar from '@ramonak/react-progress-bar';
 
@@ -28,6 +29,7 @@ import Info from './components/Info';
 import BarGraph from './components/BarGraph';
 import greenBorder from './assets/green-border.svg';
 import AtomShell from './components/AtomShell';
+import DropdownTagView from './components/DropdownTagView';
 
 const proxyString = 'http://localhost:8080'; // 9999 with proxyman
 const sleepUrl = new URL(proxyString + '/sleep');
@@ -49,6 +51,7 @@ class App extends React.Component {
 
 
     this.state = {
+      dropDownValue: "relax",
       selectedDay: undefined,
       audio: null,
       aggregates: [],
@@ -71,6 +74,11 @@ class App extends React.Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.handleDayClick = this.handleDayClick.bind(this);
+    this.handleDropDownChange = this.handleDropDownChange.bind(this);
+  }
+
+  handleDropDownChange(event) {
+    this.setState({dropDownValue: event.target.value});
   }
 
   handleHide(key) {
@@ -192,10 +200,10 @@ class App extends React.Component {
 
     };
 
-    const {ouraSleepSummaryList, movesList, movesAllList, recordList} = this.state; // Important line caused errors
+    const {ouraSleepSummaryList, movesList, movesAllList, recordList, dropDownValue} = this.state; // Important line caused errors
 
     // Adding filtered groups by Tags
-    let tags = ['biohack', 'spartan-race', 'relax', 'eod-mwf'];
+    let tags = ['biohack', 'spartan-race', 'relax', 'eod-mwf', 'not-a-victim'];
     let bioHackMoves = movesAllList.filter(
         moves => {
           if (moves.tags == null) {
@@ -380,6 +388,11 @@ class App extends React.Component {
                 color = 'black'; // TODO: clean *this*
                 divType = 'smallAtom';
                 break;
+              case 'relax':
+                bgColor = 'white';
+                color = 'black'; // TODO: clean *this*
+                divType = 'smallAtom';
+                break;
               default:
             }
             switch (divType) {
@@ -453,7 +466,7 @@ class App extends React.Component {
                   {...styles.general, ...selectedTypeStyle}
                 }>
               <div style={{'padding': '10px 10px'}}>
-                <Info info={move.description}>
+                <Info info={move.name.charAt(0).toUpperCase() + move.name.slice(1) + ':  ' + move.description}>
                   <div
                       style={{...styles.title, ...selectedTitleStyle}}>{move.name} </div>
                 </Info>
@@ -484,14 +497,28 @@ class App extends React.Component {
       const moveAllDiv = createMoveGeneralDivFromArray.call(this, movesAllList);
 
       let taggedDivs = [];
+      let taggedDivMap = {};
+      // let dropDownTaggedDiv = [];
+      let tagToVideoMapping = {
+        "biohack" : fireflyVideo,
+        "relax" : carSunSetVideo
+      };
+      /* Filling in the taggedDivs */
       for (var i = 0; i < taggedMoves.length; i++) {
         let d = createMoveGeneralDivFromArray.call(this, taggedMoves[i]);
         // taggedDivs.push(d);
         let atomShell = <AtomShell title={tags[i].toUpperCase()} children={d}
-                                   video={fireflyVideo}>
+                                   video={tagToVideoMapping[tags[i]]}>
         </AtomShell>;
-        taggedDivs.push(atomShell);
+        // taggedDivs.push(atomShell);
+        taggedDivMap[tags[i]] = atomShell;
+        // if (dropDownValue == tags[i]){
+        //   dropDownTaggedDiv.push(atomShell);
+        // }
       }
+
+      /* Filter specific Div */
+
 
       let spanStyle = {'backgroundColor': 'black', 'width': '390px'};
       const recordDiv = [
@@ -555,19 +582,34 @@ class App extends React.Component {
         aggNames.push(aggObj.move.name + ' [' + aggObj.move.recordType + ']');
         barData.push(aggObj.aggregateValue);
       });
-      let recordTypeFilter = 'Do';
+      let recordTypeFilterDo = 'Do';
+
+
+      // Aggregate Data
       let aggNamesDo = this.state.aggregates.reduce(function(filtered, aggObj) {
-        if (aggObj.move.recordType === recordTypeFilter) {
+        if (aggObj.move.recordType === recordTypeFilterDo) {
           filtered.push(aggObj.move.name + ' [' + aggObj.move.recordType + ']');
         }
         return filtered;
       }, []);
       let aggDataDo = this.state.aggregates.reduce(function(filtered, aggObj) {
-        if (aggObj.move.recordType === recordTypeFilter) {
+        if (aggObj.move.recordType === recordTypeFilterDo) {
           filtered.push(aggObj.aggregateValue);
         }
         return filtered;
       }, []);
+
+      let aggNamesAll = this.state.aggregates.reduce(function(filtered, aggObj) {
+          filtered.push(aggObj.move.name + ' [' + aggObj.move.recordType + ']');
+        return filtered;
+      }, []);
+      let aggDataAll = this.state.aggregates.reduce(function(filtered, aggObj) {
+          filtered.push(aggObj.aggregateValue);
+        return filtered;
+      }, []);
+
+
+
 
       // Duration - count / goal count
       // Rule: 3 water cups [conditional: before 12pm], [conditional: count == 1]
@@ -612,7 +654,16 @@ class App extends React.Component {
 
         <br/>
 
-        {taggedDivs}
+
+
+       <DropdownTagView
+           label={"Tags"}
+           options={tags}
+           value={dropDownValue}
+           onChange={this.handleDropDownChange}
+           selectedTagMoves={taggedDivMap[dropDownValue]}
+       />
+
 
         <HappyJarContainer></HappyJarContainer>
 
@@ -642,9 +693,21 @@ class App extends React.Component {
             moveNames={aggNamesDo}
             data={aggDataDo}
             aggregateType={this.state.aggregateFilterType + ' ' +
-            recordTypeFilter}
+            recordTypeFilterDo}
         ></BarGraph>
 
+        <BarGraph
+            moveNames={aggNamesAll}
+            data={aggDataAll}
+            aggregateType={this.state.aggregateFilterType + ' ' + "All"}
+        ></BarGraph>
+
+        <div>
+          💎 Things to look forward too <br/>
+          1. Hawaii Trip w/ Friends. Just art, healing, strength, in a good time to bring friends. <br/>
+          2. Future Races <br/>
+          3. Inktober 2022 with friends close by <br/>
+        </div>
         <DateSelectorController
             moveRecords={recordList}
             dates={days}
