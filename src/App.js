@@ -15,14 +15,20 @@ import ok from './assets/ok.png';
 import flow from './assets/flow.png';
 import exercise from './assets/exercise.png';
 import techniqueOne from './assets/technique-1.png';
+import guitarIcon from './assets/guitar.png';
+import videoIcon from './assets/video-file.png';
+import foamRollerImg from './assets/foam-roller.png';
+import csImg from './assets/cs.png';
 
 import fireflyVideo from './assets/fireflyVideo.mp4';
 import carSunSetVideo from './assets/visual-car-sunset.mp4';
 
 import ProgressBar from '@ramonak/react-progress-bar';
-
+import HideItems from './HideItems';
 import CardContainer from './CardContainer';
 import HappyJarContainer from './HappyJarContainer';
+import FormContainer from './FormContainer';
+import CuratedDashboard from './CuratedDashboard';
 import DateController from './DateController';
 import DateSelectorController from './DateSelectorController';
 import Info from './components/Info';
@@ -37,13 +43,19 @@ const moveUrl = new URL(proxyString + '/move');
 const movePostUrl = new URL(proxyString + '/move');
 const moveRecordUrl = new URL(proxyString + '/moverecords');
 const moveAggregateUrl = new URL(proxyString + '/aggregates');
+const songListItemsUrl = new URL(proxyString + '/listsong');
+const listItemsUrl = new URL(proxyString + '/list');
+const formDataUrl = new URL(proxyString + '/form');
+const fileDataUrl = new URL(proxyString + '/file');
+const filePostURL = new URL(proxyString + '/file');
 
 class App extends React.Component {
+  requiredFormProperties;
   constructor(props) {
     super(props);
 
     // Local storage for caching state of dashboard hide toggle
-    let h = ((window.localStorage.getItem('hide')) == null) ? {
+    let hideSettings = ((window.localStorage.getItem('hide')) == null) ? {
       'move': false,
       'moveAll': true,
       'record': true,
@@ -51,13 +63,17 @@ class App extends React.Component {
 
 
     this.state = {
+      fileData:[],
+      formDataList:[],
+      listItems: [],
       dropDownValue: "relax",
       selectedDay: undefined,
       audio: null,
+      songListItems: [],
       aggregates: [],
       aggregateFilterType: 'sum',
       totalReactPackages: null,
-      ouraSleepSummaryList: [],
+      sleepSummaryList: [],
       movesList: [],
       movesAllList: [],
       recordList: [],
@@ -69,7 +85,7 @@ class App extends React.Component {
       value: {
         // "30s"
       },
-      hide: h,
+      hide: hideSettings,
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -84,9 +100,7 @@ class App extends React.Component {
   handleHide(key) {
     let hideObj = this.state.hide;
     hideObj[key] = !this.state.hide[key];
-
-    window.localStorage.setItem('hide',
-        JSON.stringify(hideObj));
+    window.localStorage.setItem('hide', JSON.stringify(hideObj));
     this.setState(hideObj);
   }
 
@@ -94,7 +108,6 @@ class App extends React.Component {
     let obj = this.state.value;
     obj[keyId] = event.target.value;
     this.setState({value: obj});
-
     console.log('Value' + JSON.stringify(obj));
   }
 
@@ -107,7 +120,7 @@ class App extends React.Component {
     this.setState({selectedDay: day});
   }
 
-  handleSubmit(move, recordValue) {
+  handleRecordSubmit(move, recordValue) {
     let dateString = null;
     if (this.state.selectedDay != null){
       dateString = this.state.selectedDay.toLocaleDateString();
@@ -126,6 +139,25 @@ class App extends React.Component {
     console.log('Submitted move: ' + JSON.stringify(move));
     this.state.audio.play();
   }
+  handleFileSubmit(formData, formType) {
+    console.log("File to be submitted: " + formData.name + " of type: " + formType);
+    var xhr = new XMLHttpRequest();
+    if (formType === "FileItemForm"){
+      xhr.open('POST', filePostURL.href, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify({
+        ...formData
+      }));
+      this.state.audio.play();
+    } else if (formType === "ListItemForm"){
+      xhr.open('POST', listItemsUrl.href, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify({
+        ...formData
+      }));
+      this.state.audio.play();
+    }
+  }
 
   componentDidMount() {
     this.state.audio = document.getElementsByClassName('audio-element')[0];
@@ -140,12 +172,13 @@ class App extends React.Component {
       });
     });
 
+    console.log('getting moves: ');
     // Get moves with filter
     var params = {filter: 'PRIORITY', filterTwo: 'ATOM_SIZE_DESCENDING'};
     moveUrl.search = new URLSearchParams(params).toString();
     fetch(moveUrl).then(response => response.json()).then(data => {
-      console.log('data: ' + JSON.stringify(data));
       if (data) {
+        console.log('getting moves: ');
         this.setState({movesList: data});
       }
     });
@@ -155,6 +188,7 @@ class App extends React.Component {
         this.setState({recordList: data});
       }
     });
+
 
     // Fetch Aggregates
     var aggregateParams = {
@@ -171,6 +205,46 @@ class App extends React.Component {
       if (data) {
         console.log('Aggregate Data ' + JSON.stringify(data));
         this.setState({aggregates: data});
+      }
+    });
+
+    fetch(songListItemsUrl).then(response => response.json()).then(data => {
+      if (data) {
+        console.log('List Songs Data ' + JSON.stringify(data));
+        this.setState({songListItems: data});
+      }
+    });
+
+
+    // Calculate sleep for Monday of this week
+    let startDate = moment().startOf('isoweek').format('YYYY-MM-DD');
+    let endDate = moment().startOf('week').format('YYYY-MM-DD');
+    let fullSleepUrl = sleepUrl + '?startDate=' + startDate + '&endDate=' + endDate;
+    fetch(fullSleepUrl).then(response => response.json()).then(data => {
+      if (data) {
+        console.log('List Sleep Data ' + JSON.stringify(data.sleep));
+        this.setState({sleepSummaryList: data.sleep});
+      }
+    });
+
+
+    fetch(listItemsUrl).then(response => response.json()).then(data => {
+      if (data) {
+        this.setState({listItems: data});
+      }
+    });
+
+    fetch(formDataUrl).then(response => response.json()).then(data => {
+      console.log("form:" + JSON.stringify(data));
+      if (data) {
+        this.setState({formDataList: data});
+      }
+    });
+
+    fetch(fileDataUrl).then(response => response.json()).then(data => {
+      console.log("file:" + JSON.stringify(data));
+      if (data) {
+        this.setState({fileData: data});
       }
     });
 
@@ -198,12 +272,14 @@ class App extends React.Component {
         height: '40px',
       },
 
-    };
+    }
 
-    const {ouraSleepSummaryList, movesList, movesAllList, recordList, dropDownValue} = this.state; // Important line caused errors
+    const {sleepSummaryList, movesList, movesAllList, recordList, dropDownValue} = this.state; // Important line caused errors
+    console.log("Moves list:" + JSON.stringify(movesList));
+    console.log("Moves All list:" + JSON.stringify(movesAllList));
 
     // Adding filtered groups by Tags
-    let tags = ['biohack', 'spartan-race', 'relax', 'eod-mwf', 'not-a-victim'];
+    let tags = ['biohack', 'spartan-race', 'relax', 'eod-mwf', 'not-a-victim','checklist'];
     let bioHackMoves = movesAllList.filter(
         moves => {
           if (moves.tags == null) {
@@ -227,7 +303,7 @@ class App extends React.Component {
     });
 
     const sleepComponentsList = [
-      ouraSleepSummaryList.map(
+      sleepSummaryList.map(
           item => {
             const date = item.summary_date;
             const displayDate = convertDateStringToMonthDay(item.summary_date);
@@ -265,6 +341,7 @@ class App extends React.Component {
     } else {
 
       const createMoveGeneralDivFromArray = function(mList) {
+        console.log(mList.length + " given length");
         if (mList.length === 0) {
           return [];
         }
@@ -362,6 +439,8 @@ class App extends React.Component {
                 selectedTypeSubmitStyle = {},
                 selectedLabelStyle, selectedTitleStyle = {};
             switch (move.type) {
+              case 'MultiSelect':
+                bgColor = Colors.lightBlue;
               case 'Ritual':
                 divType = 'mediumAtom';
                 break;
@@ -460,7 +539,9 @@ class App extends React.Component {
                 <img style={{...styles.submit, ...selectedTypeSubmitStyle}}
                      src={ok} alt="Logo"/>;
 
-            return <div
+            return
+            <div>
+              <div
                 key={move.id}
                 style={
                   {...styles.general, ...selectedTypeStyle}
@@ -477,9 +558,19 @@ class App extends React.Component {
                 <label>
                   {textArea}
                 </label>
+                { (move.multiSelect != "") ? <div>
+                  <select value={'a'} onChange={()=>{console.log("test");}}>
+                    {this.state.listItems.filter((listItem)=> {
+                      return listItem.type == "CS_ALG_DATA_STRUCTURE_PROBLEM"
+                    }).map((option) => (
+                          <option value={option.name}>{option.name}</option>
+                      ))
+                    }}
+                  </select>
+                </div> : <div></div> }
                 <button style={{...buttonStyle, ...selectedTypeSubmitStyle}}
                         onClick={(e) => {
-                          this.handleSubmit(move, this.state.value[move.id], e);
+                          this.handleRecordSubmit(move, this.state.value[move.id], e);
                         }}>
                   {submitButton}
                 </button>
@@ -487,6 +578,7 @@ class App extends React.Component {
                 <br/>
               </div>
             </div>;
+            </div>
           })];
       };
 
@@ -664,8 +756,52 @@ class App extends React.Component {
            selectedTagMoves={taggedDivMap[dropDownValue]}
        />
 
+        <CuratedDashboard fileItems={this.state.fileData} />
 
+        { this.state.formDataList.map(formData => {
+          return <FormContainer
+                                type={formData.formDataTitle}
+                                properties={[...formData.requiredFormProperties, ...formData.extraFormProperties]}
+                                onSubmit={this.handleFileSubmit}/>
+        })
+
+        }
+        {/*<FormContainer type={"listItem"} properties={{"a":1,"b":2,"c":3}}/>*/}
         <HappyJarContainer></HappyJarContainer>
+        Jesse's Forever Collection of Songs He loves and performs
+        {
+          this.state.songListItems.map((songListItem)=>{
+            return <div>
+              <img style={{width:"30px",height:"30px"}} src={guitarIcon}/>
+              <span> Song: {songListItem.name}  </span>
+              <span> Author: {songListItem.author}  </span>
+              <span> Ideas and Practice Links:
+                {(songListItem.artifacts !== null) ? songListItem.artifacts.split(',').map((artifactLink)=>{
+                  return <div style={{display: "inline-block"}}> <a href={artifactLink}> <img style={{width:"30px",height:"30px"}} src={videoIcon}/> </a>
+                    {/*<div style={{fontSize: "8px"}}> {artifactLink.split(".")[1].split("/")[2].slice(0,15)} </div>*/}
+                  </div>;
+                }) : null}
+                </span>
+              </div>
+          })
+        }
+
+        Jesse's List Items
+        {
+          this.state.listItems.map((listItem)=>{
+
+            let imgIcon = (listItem.type == "CS_ALG_DATA_STRUCTURE_PROBLEM") ?
+                csImg :  (listItem.type == "PHYSICAL_ACTIONS") ? foamRollerImg : foamRollerImg;
+            return <div>
+              <img style={{width:"30px",height:"30px"}} src={imgIcon}/>
+              <span style={{backgroundColor: "green", color: "white"}}> {listItem.type}  </span>
+              <span> {listItem.name}  </span>
+              <span style={{backgroundColor: "red", color: "white", fontSize: "11px"}}> {listItem.tags}  </span>
+              <HideItems items={listItem.description}/>
+            </div>
+          })
+        }
+
 
         <button style={btnStyle} onClick={() => {
           this.handleHide('move');
@@ -710,13 +846,13 @@ class App extends React.Component {
         </div>
         <DateSelectorController
             moveRecords={recordList}
+            sleepRecords={sleepSummaryList}
             dates={days}
             events={{
               'workouts': '🩸',
               'events': '🥏',
               'artifacts': '💎',
             }}
-
         />
       </div>;
     }
@@ -759,6 +895,7 @@ weekday[6] = 'Saturday';
 
 const Colors = {
   lightGreen: '#abdf86',
+  lightBlue: '#B7F2DE',
 };
 
 export default App;

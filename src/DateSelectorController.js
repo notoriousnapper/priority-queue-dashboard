@@ -1,6 +1,6 @@
 import React from 'react';
-import DateContainer from './DateContainer';
 import moment from 'moment';
+import oura from './assets/oura-ring.png';
 
 class DateSelectorController extends React.Component {
   constructor(props) {
@@ -18,26 +18,27 @@ class DateSelectorController extends React.Component {
 
   render() {
 
-    // let startDate = Date.this.props.starteDate
+    let styles = {
+      snapShot : {border:"1px solid #B77373", color: "red", whiteSpace: "preline", backgroundColor: "#F0F0F0", padding: "10px"},
+      moveRecordTitle : { fontWeight: "bold"}
+    };
     let dateItems = this.props.dates.map((date) => {
       let moveRecords =
           // TODO: sort value for types
           this.props.moveRecords.map((moveRecord) => {
             let moveDate = moment(moveRecord.trueRecordDate, "YYYY-MM-DD").toDate();
-                // new Date(moveRecord.trueRecordDate);
-
-            console.log(
-                'unchanged: ' + moveRecord.trueRecordDate + '\nDates: ' + moveDate.toISOString() + '\n orig moment date' + date + ' moves ' +
-                JSON.stringify(moveRecord));
 
             let textDiv = (moveRecord.recordValue != null) ? moveRecord.recordValue.split(/\r?\n/).map((text)=>{
               return <div> {text} <br/></div>;
             }) : null;
 
-            console.log("record type " + moveRecord.move.recordType);
             // TODO: FIX THIS ^ recording swapped for recordTType or type -
-            let recordDiv = (moveRecord.move.recordType == "Text" || moveRecord.move.type == "Text")?
-                <p style={{whiteSpace: "preline", backgroundColor: "#F0F0F0", padding: "10px"}}> {textDiv} </p> :
+
+            let recordDiv = (moveRecord.move.recordType == "Snapshot" || moveRecord.move.type == "Snapshot") ?
+                (<p style={styles.snapShot}> 📸 SnapShot <br/><br/>{textDiv} </p>)
+                : (moveRecord.move.recordType == "Text" || moveRecord.move.type == "Text")?
+                    (<p style={{whiteSpace: "preline", backgroundColor: "#F0F0F0", padding: "10px"}}> {textDiv} </p>)
+                    :
                 (moveRecord.move.recordType == 'Workout') ?
                     <div>
                       <h3 style={{color:"#F8E71C"}}>💎 {moveRecord.move.name}</h3>
@@ -49,11 +50,27 @@ class DateSelectorController extends React.Component {
                     }
 
             if (sameDay(moveDate, date)) {
-              return <div ><p>{ recordDiv }</p></div>;
+              return <div ><div style={styles.moveRecordTitle}>{moveRecord.move.name}<br/></div><p>{ recordDiv }</p></div>;
             }
 
           });
       moveRecords.filter(x => x !== null);
+
+
+      let sleepRecords =
+          this.props.sleepRecords.map((sleepRecord) => {
+            let sleepDate = moment(sleepRecord.summary_date, "YYYY-MM-DD").toDate();
+            // new Date(moveRecord.trueRecordDate);
+
+
+            let textDiv = <div> Sleep Record: {sleepRecord.name } <br/></div>;
+            if (sameDay(sleepDate, date)) {
+              return <div ><img style={{width:"20px",height:"20px"}} src={oura}/>
+                <p>{ textDiv }</p></div>;
+            }
+
+          });
+      sleepRecords.filter(x => x !== null);
 
       // TODO: Order by "Gems", Trace, and links, then whatever
       // Gems are defined as events, tags, and workouts, and symptoms (tags)
@@ -70,6 +87,7 @@ class DateSelectorController extends React.Component {
           textAlign: "justify"
         }}>
           {moveRecords}
+          {sleepRecords}
         </div>
         <br/>
       </div>;

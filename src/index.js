@@ -2,13 +2,23 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
+import HideItems from './HideItems';
+import Filler from './Filler';
+import DailyDashboard from './DailyDashboard';
 import reportWebVitals from './reportWebVitals';
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+    <React.StrictMode>
+      {/*<Router>*/}
+        {/*<Routes>*/}
+          {/*<Route path="/" element={<Filler/>} />*/}
+          {/*<Route path="/daily" element={<DailyDashboard/>} />*/}
+        {/*</Routes>*/}
+      {/*</Router>*/}
+      <HideItems items={<App/>}/>
+    </React.StrictMode>,
+    document.getElementById('root'),
 );
 
 // If you want to start measuring performance in your app, pass a function
