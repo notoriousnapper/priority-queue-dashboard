@@ -10,12 +10,12 @@ import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 
 ReactDOM.render(
     <React.StrictMode>
-      {/*<Router>*/}
-        {/*<Routes>*/}
-          {/*<Route path="/" element={<Filler/>} />*/}
-          {/*<Route path="/daily" element={<DailyDashboard/>} />*/}
-        {/*</Routes>*/}
-      {/*</Router>*/}
+      <Router>
+        <Routes>
+          <Route path="/" element={<Filler/>} />
+          <Route path="/daily" element={<DailyDashboard/>} />
+        </Routes>
+      </Router>
       <HideItems items={<App/>}/>
     </React.StrictMode>,
     document.getElementById('root'),

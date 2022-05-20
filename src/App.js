@@ -36,25 +36,30 @@ import BarGraph from './components/BarGraph';
 import greenBorder from './assets/green-border.svg';
 import AtomShell from './components/AtomShell';
 import DropdownTagView from './components/DropdownTagView';
+import Globals from './helper/Globals';
 
-const proxyString = 'http://localhost:8080'; // 9999 with proxyman
-const sleepUrl = new URL(proxyString + '/sleep');
-const moveUrl = new URL(proxyString + '/move');
-const movePostUrl = new URL(proxyString + '/move');
-const moveRecordUrl = new URL(proxyString + '/moverecords');
-const moveAggregateUrl = new URL(proxyString + '/aggregates');
-const songListItemsUrl = new URL(proxyString + '/listsong');
-const listItemsUrl = new URL(proxyString + '/list');
-const formDataUrl = new URL(proxyString + '/form');
-const fileDataUrl = new URL(proxyString + '/file');
-const filePostURL = new URL(proxyString + '/file');
+
+let BASE_URL_PROXY = 'http://localhost:8080'; // 9999 with proxyman
+let sleepUrl= new URL(BASE_URL_PROXY + '/sleep');
+const moveUrl= new URL(BASE_URL_PROXY + '/move');
+const movePostUrl= new URL(BASE_URL_PROXY + '/move');
+const moveRecordUrl = new URL(BASE_URL_PROXY + '/moverecords');
+const moveAggregateUrl = new URL(BASE_URL_PROXY + '/aggregates');
+const songListItemsUrl = new URL(BASE_URL_PROXY + '/listsong');
+const listItemsUrl = new URL(BASE_URL_PROXY + '/list');
+const formDataUrl = new URL(BASE_URL_PROXY + '/form');
+const fileDataUrl = new URL(BASE_URL_PROXY + '/file');
+const filePostURL = new URL(BASE_URL_PROXY + '/file');
+
+
+
 
 class App extends React.Component {
   requiredFormProperties;
   constructor(props) {
     super(props);
 
-    // Local storage for caching state of dashboard hide toggle
+    // Cached in local storage
     let hideSettings = ((window.localStorage.getItem('hide')) == null) ? {
       'move': false,
       'moveAll': true,
@@ -93,7 +98,7 @@ class App extends React.Component {
     this.handleDropDownChange = this.handleDropDownChange.bind(this);
   }
 
-  handleDropDownChange(event) {
+  handleDropDownChange(event){
     this.setState({dropDownValue: event.target.value});
   }
 
@@ -136,11 +141,9 @@ class App extends React.Component {
       'recordValue': recordValue,
       'trueRecordDate': dateString
     }));
-    console.log('Submitted move: ' + JSON.stringify(move));
     this.state.audio.play();
   }
   handleFileSubmit(formData, formType) {
-    console.log("File to be submitted: " + formData.name + " of type: " + formType);
     var xhr = new XMLHttpRequest();
     if (formType === "FileItemForm"){
       xhr.open('POST', filePostURL.href, true);
@@ -161,10 +164,10 @@ class App extends React.Component {
 
   componentDidMount() {
     this.state.audio = document.getElementsByClassName('audio-element')[0];
-
     fetch(moveUrl).then(response => response.json()).then(data => {
       if (data) {
         this.setState({movesAllList: data});
+        // this.setState({testdiv: <div>Done testing</div>});
       }
       let obj = {};
       data.forEach((a) => {
@@ -172,7 +175,6 @@ class App extends React.Component {
       });
     });
 
-    console.log('getting moves: ');
     // Get moves with filter
     var params = {filter: 'PRIORITY', filterTwo: 'ATOM_SIZE_DESCENDING'};
     moveUrl.search = new URLSearchParams(params).toString();
@@ -248,6 +250,8 @@ class App extends React.Component {
       }
     });
 
+    this.forceUpdate();
+
   }
 
   render() {
@@ -272,14 +276,12 @@ class App extends React.Component {
         height: '40px',
       },
 
-    }
+    };
 
     const {sleepSummaryList, movesList, movesAllList, recordList, dropDownValue} = this.state; // Important line caused errors
-    console.log("Moves list:" + JSON.stringify(movesList));
-    console.log("Moves All list:" + JSON.stringify(movesAllList));
 
     // Adding filtered groups by Tags
-    let tags = ['biohack', 'spartan-race', 'relax', 'eod-mwf', 'not-a-victim','checklist'];
+    let tags = Globals.COMMON_TAGS;
     let bioHackMoves = movesAllList.filter(
         moves => {
           if (moves.tags == null) {
@@ -342,7 +344,7 @@ class App extends React.Component {
 
       const createMoveGeneralDivFromArray = function(mList) {
         console.log(mList.length + " given length");
-        if (mList.length === 0) {
+        if (mList.length === 0 || !mList) {
           return [];
         }
         return [
@@ -541,6 +543,7 @@ class App extends React.Component {
 
             return
             <div>
+              {this.state.testDiv}
               <div
                 key={move.id}
                 style={
@@ -582,6 +585,7 @@ class App extends React.Component {
           })];
       };
 
+      console.log("creating parent divs");
       const moveFilteredDiv = createMoveGeneralDivFromArray.call(this,
           movesList);
       const moveBioHackDiv = createMoveGeneralDivFromArray.call(this,
@@ -723,8 +727,6 @@ class App extends React.Component {
       }
 
       return <div>
-
-
         <br/>
         <DayPicker
             onDayClick={this.handleDayClick}
