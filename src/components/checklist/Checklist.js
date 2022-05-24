@@ -6,18 +6,20 @@ import ChecklistItem from './ChecklistItem';
 
 const Checklist = (props) => {
 
-  const [moves, setMoves] = useState(props);
-  let checklist = null;
+  const [moves, setMoves] = useState(null);
+  const [title, setTitle] = useState(null);
 
   useEffect(() => {
-    setMoves(props);
-      console.log("moves new: " + JSON.stringify(moves.moves));
+    setMoves(props.moves);
+    setTitle(props.title);
+      console.log("moves new: " + JSON.stringify(moves));
   }, [props]);
 
   return (
       <div style={{padding: "10% 20%"}}>
+        <h3> {title} </h3>
         {/*{ JSON.stringify(moves) }*/}
-        {(moves !== null && moves.moves !== null && moves.moves.data !== null) ? moves.moves.map(
+        {(moves !== null) ? moves.map(
             move => {
               return (<ChecklistItem move={move}/>);
             }

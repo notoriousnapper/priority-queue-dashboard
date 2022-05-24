@@ -1,6 +1,11 @@
 
 export default class Globals {
+  static BASE_URL_PROXY = 'http://localhost:8080'; // 9999 with proxyman
   static COMMON_TAGS = ['biohack', 'spartan-race', 'relax', 'eod-mwf', 'not-a-victim', 'checklist'];
+  static moveUrl= new URL(this.BASE_URL_PROXY + '/move');
+  static movePostUrl= new URL(this.BASE_URL_PROXY + '/move');
+  static moveRecordUrlFilterByToday = new URL(this.BASE_URL_PROXY + '/moverecords' + '?weekFilter=CURRENT_DAY');
+  static listItemRandomizedUrl = new URL(this.BASE_URL_PROXY + '/list/singlerandom/WORKING_ON_SELF');
 }
 
 

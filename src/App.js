@@ -36,6 +36,9 @@ import BarGraph from './components/BarGraph';
 import greenBorder from './assets/green-border.svg';
 import AtomShell from './components/AtomShell';
 import DropdownTagView from './components/DropdownTagView';
+import ListItem from './components/ListItem';
+
+
 import Globals from './helper/Globals';
 
 
@@ -794,13 +797,7 @@ class App extends React.Component {
 
             let imgIcon = (listItem.type == "CS_ALG_DATA_STRUCTURE_PROBLEM") ?
                 csImg :  (listItem.type == "PHYSICAL_ACTIONS") ? foamRollerImg : foamRollerImg;
-            return <div>
-              <img style={{width:"30px",height:"30px"}} src={imgIcon}/>
-              <span style={{backgroundColor: "green", color: "white"}}> {listItem.type}  </span>
-              <span> {listItem.name}  </span>
-              <span style={{backgroundColor: "red", color: "white", fontSize: "11px"}}> {listItem.tags}  </span>
-              <HideItems items={listItem.description}/>
-            </div>
+            return <ListItem listItem={listItem} img={imgIcon}/>
           })
         }
 
